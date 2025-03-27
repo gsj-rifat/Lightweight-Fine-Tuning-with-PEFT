@@ -1,21 +1,12 @@
-#!/usr/bin/env python
-# coding: utf-8
 
 # # Lightweight Fine-Tuning Project
 
-# TODO: In this cell, describe your choices for each of the following
-# 
 # * PEFT technique: 
 # * Model: 
 # * Evaluation approach: 
 # * Fine-tuning dataset: 
 
 # ## Loading and Evaluating a Foundation Model
-# 
-# TODO: In the cells below, load your chosen pre-trained Hugging Face model and evaluate its performance prior to fine-tuning. This step includes loading an appropriate tokenizer and dataset.
-
-# In[1]:
-
 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from datasets import load_dataset
@@ -23,8 +14,6 @@ import torch
 import numpy as np
 from transformers import Trainer, TrainingArguments
 
-
-# In[2]:
 
 
 MODEL_NAME = "gpt2"  # Using GPT-2 (small size)
@@ -35,9 +24,6 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
 # GPT-2 does not have a padding token by default, so we define one
 tokenizer.pad_token = tokenizer.eos_token
-
-
-# In[3]:
 
 
 DATASET_NAME = "imdb"  # Choose a text classification dataset
@@ -51,9 +37,6 @@ def preprocess_function(examples):
 
 # Apply tokenization
 tokenized_datasets = dataset.map(preprocess_function, batched=True)
-
-
-# In[6]:
 
 
 # Set padding token for GPT-2
@@ -86,17 +69,9 @@ baseline_results = trainer.evaluate()
 print("Baseline Performance:", baseline_results)
 
 
-# In[ ]:
-
-
-
-
 
 # ## Performing Parameter-Efficient Fine-Tuning
-# 
-# TODO: In the cells below, create a PEFT model from your loaded model, run a training loop, and save the PEFT model weights.
-
-# In[7]:
+# create a PEFT model from your loaded model, run a training loop, and save the PEFT model weights.
 
 
 from peft import LoraConfig, get_peft_model, TaskType
@@ -112,9 +87,6 @@ lora_config = LoraConfig(
 # Wrap the base model with LoRA
 peft_model = get_peft_model(model, lora_config)
 peft_model.print_trainable_parameters()
-
-
-# In[16]:
 
 
 training_args = TrainingArguments(
@@ -140,32 +112,8 @@ trainer = Trainer(
 )
 
 
-
-# In[ ]:
-
-
 # Train model
 trainer.train()
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# ###  ⚠️ IMPORTANT ⚠️
-# 
-# Due to workspace storage constraints, you should not store the model weights in the same directory but rather use `/tmp` to avoid workspace crashes which are irrecoverable.
-# Ensure you save it in /tmp always.
-
-# In[9]:
 
 
 # Saving the model
@@ -176,9 +124,7 @@ tokenizer.save_pretrained("./tmp/peft_gpt2_lora")
 
 # ## Performing Inference with a PEFT Model
 # 
-# TODO: In the cells below, load the saved PEFT model weights and evaluate the performance of the trained PEFT model. Be sure to compare the results to the results from prior to fine-tuning.
-
-# In[12]:
+#load the saved PEFT model weights and evaluate the performance of the trained PEFT model. Be sure to compare the results to the results from prior to fine-tuning.
 
 
 from peft import AutoPeftModelForSequenceClassification
@@ -197,9 +143,6 @@ tokenizer.pad_token = tokenizer.eos_token
 peft_model.config.pad_token_id = tokenizer.pad_token_id
 
 
-# In[17]:
-
-
 # Evaluate fine-tuned model
 fine_tuned_results = trainer.evaluate()
 print("Fine-Tuned Model Performance:", fine_tuned_results)
@@ -207,22 +150,5 @@ print("Fine-Tuned Model Performance:", fine_tuned_results)
 # Compare baseline vs fine-tuned accuracy
 print("Baseline Accuracy:", baseline_results["eval_accuracy"])
 print("Fine-Tuned Accuracy:", fine_tuned_results["eval_accuracy"])
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
 
 
